@@ -1,6 +1,7 @@
 const database = require('../db')
 const {DataTypes} = require('sequelize')
 
+
 const User = database.define('user', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     email: {type: DataTypes.STRING, unique: true, notNull: true},
@@ -16,18 +17,13 @@ const Clothes = database.define('clothes', {
     img: {type: DataTypes.STRING},
     description: {type: DataTypes.TEXT},
     price: {type: DataTypes.INTEGER},
-    type: { type: DataTypes.STRING}
+    type: { type: DataTypes.STRING},
+    size: {type: DataTypes.INTEGER}
 })
 
 
 const Basket = database.define('basket', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-})
-
-Clothes
-const SizeTable = database.define('size_table', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    size: {type: DataTypes.SMALLINT, allowNull: true}
 })
 
 const BasketClothes = database.define('basket_clothes', {
@@ -44,11 +40,6 @@ BasketClothes.belongsTo(Basket)
 Clothes.hasMany(BasketClothes)
 BasketClothes.belongsTo(Clothes)
 
-Clothes.hasMany(SizeTable)
-SizeTable.hasOne(Clothes)
-
-Clothes.hasMany(SizeTable, {as: 'table'});
-SizeTable.belongsTo(Clothes)
 
 module.exports = {
     User,

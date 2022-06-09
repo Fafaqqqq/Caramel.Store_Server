@@ -1,27 +1,16 @@
 const uuid = require('uuid')
 const path = require('path');
-const {Device, DeviceInfo} = require('../models/models')
+const {Clothes} = require('../models/models')
 const ApiError = require('../error/ApiError');
 
 class ClothesController {
     async create(req, res, next) {
         try {
-            let {name, price, description, image, size_table_id} = req.body
-            const {img} = req.files
+            let {name, price, description, size, type} = req.body
+            const {image} = req.files
             let fileName = uuid.v4() + ".jpg"
-            img.mv(path.resolve(__dirname, '..', 'static', fileName))
-            const device = await Device.create({name, price, brandId, typeId, img: fileName});
-
-            if (info) {
-                info = JSON.parse(info)
-                info.forEach(i =>
-                    DeviceInfo.create({
-                        title: i.title,
-                        description: i.description,
-                        deviceId: device.id
-                    })
-                )
-            }
+            image.mv(path.resolve(__dirname, '..', 'static', 'images', type, fileName))
+            const clothes = await Clothes.create({name, img: fileName, description, price, type, size  });
 
             return res.json(device)
         } catch (e) {
@@ -31,32 +20,20 @@ class ClothesController {
     }
 
     async getAll(req, res) {
-        let {brandId, typeId, limit, page} = req.query
+        let {type, limit, page} = req.query
         page = page || 1
-        limit = limit || 9
+        limit = limit || 8
         let offset = page * limit - limit
-        let devices;
-        if (!brandId && !typeId) {
-            devices = await Device.findAndCountAll({limit, offset})
-        }
-        if (brandId && !typeId) {
-            devices = await Device.findAndCountAll({where:{brandId}, limit, offset})
-        }
-        if (!brandId && typeId) {
-            devices = await Device.findAndCountAll({where:{typeId}, limit, offset})
-        }
-        if (brandId && typeId) {
-            devices = await Device.findAndCountAll({where:{typeId, brandId}, limit, offset})
-        }
+        let clothes = await Clothes.findAndCountAll({where: {type}, limit, offset});
+
         return res.json(devices)
     }
 
     async getOne(req, res) {
         const {id} = req.params
-        const device = await Device.findOne(
+        const clothes = await Clothes.findOne(
             {
-                where: {id},
-                include: [{model: DeviceInfo, as: 'info'}]
+                where: {id}
             },
         )
         return res.json(device)
